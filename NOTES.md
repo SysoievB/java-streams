@@ -6,5 +6,5 @@
 
         System.out.println("with int stream inclusive");
         IntStream.rangeClosed(0, 10).forEach(System.out::print);//012345678910
-        ```
+```
         
