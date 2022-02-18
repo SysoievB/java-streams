@@ -31,3 +31,20 @@ Following example create stream of 10 random numbers and then print them in cons
  
         stream.limit(10).forEach(System.out::println); 
 ```
+#### IntStream to array & to list
+Use IntStream.toArray() method to convert from int stream to array.
+Using boxed() method of IntStream, we can get stream of wrapper objects which can be collected by Collectors methods.
+```
+IntStream stream = IntStream.range(1, 100); 
+     
+    List<Integer> primes = stream.filter(FilterExample::isPrime)
+                  .boxed()
+                  .collect(Collectors.toList());
+                  
+int[] intArray = IntStream.of(1, 2, 3, 4, 5).toArray();
+
+List<Integer> ints = IntStream.of(1,2,3,4,5)
+            .boxed()
+            .collect(Collectors.toList());
+```
+
