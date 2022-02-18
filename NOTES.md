@@ -1,6 +1,11 @@
 ## Stream notes
 
 ### IntStreams and other Stream Types
+#### IntStream.of()
+```
+IntStream.of(10);     //10
+IntStream.of(1, 2, 3);  //1,2,3
+```
 #### IntStream.range() and IntStream.rangeClosed()
 
 ```
