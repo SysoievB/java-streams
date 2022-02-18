@@ -1,2 +1,2 @@
 ## Stream notes
-###IntStreams and other Stream Types
+### IntStreams and other Stream Types
