@@ -1,5 +1,8 @@
 ## Stream notes
+
 ### IntStreams and other Stream Types
+#### IntStream.range() and IntStream.rangeClosed()
+
 ```
         System.out.println("with int stream exclusive");
         IntStream.range(0, 10).forEach(System.out::print);//0123456789
