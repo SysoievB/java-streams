@@ -47,4 +47,4 @@ List<Integer> ints = IntStream.of(1,2,3,4,5)
             .boxed()
             .collect(Collectors.toList());
 ```
-
+### Min and Max
