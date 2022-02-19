@@ -96,3 +96,4 @@ System.out.println("minChar = " + minChar);//minChar = D
         assertThat(distinct).hasSize(9);
         System.out.println(distinct);//[1, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
+### Filtering Data
