@@ -48,3 +48,40 @@ List<Integer> ints = IntStream.of(1,2,3,4,5)
             .collect(Collectors.toList());
 ```
 ### Min and Max
+To find min and max number from stream of numbers, use Comparator.comparing( Integer::valueOf ) like comparators. Below example is for stream of Integers.
+```
+// Get Min or Max Number
+Integer maxNumber = Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9)
+          .max(Comparator.comparing(Integer::valueOf))
+          .get();
+ 
+Integer minNumber = Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9)
+          .min(Comparator.comparing(Integer::valueOf))
+          .get();
+ 
+System.out.println("maxNumber = " + maxNumber);//9
+System.out.println("minNumber = " + minNumber);//1
+```
+Or 
+```
+List<Integer> numbers = List.of(1, 2, 3, 100, 23, 93, 99);
+        Integer min = numbers.stream().min(Comparator.naturalOrder()).get();
+        System.out.println(min);//1
+        
+        Integer max = numbers.stream().max(Comparator.naturalOrder()).get();
+        System.out.println(max);//100
+```
+To find min and max string or char from stream of chars, use Comparator.comparing( String::valueOf ) like comparators.
+```
+// Get Min or Max String/Char
+String maxChar = Stream.of("H", "T", "D", "I", "J")
+            .max(Comparator.comparing(String::valueOf))
+            .get();
+ 
+String minChar = Stream.of("H", "T", "D", "I", "J")
+            .min(Comparator.comparing(String::valueOf))
+            .get();
+ 
+System.out.println("maxChar = " + maxChar);//maxChar = T
+System.out.println("minChar = " + minChar);//minChar = D
+```
