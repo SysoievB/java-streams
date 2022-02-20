@@ -18,10 +18,10 @@ public class IntStreams {
             System.out.println(i);
         }
         System.out.println("with int stream exclusive");
-        IntStream.range(0, 10).forEach(System.out::println);
+        IntStream.range(0, 10).forEach(System.out::print);
 
         System.out.println("with int stream inclusive");
-        IntStream.rangeClosed(0, 10).forEach(System.out::println);
+        IntStream.rangeClosed(0, 10).forEach(System.out::print);
     }
 
     // Loop through people using IntStream

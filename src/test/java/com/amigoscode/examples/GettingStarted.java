@@ -30,7 +30,6 @@ public class GettingStarted {
             }
         }
         youngPeople.forEach(System.out::println);
-
     }
 
     @Test
