@@ -352,3 +352,348 @@ class Invoice {
     // getters, stters n constructor
 }
 ```
+flatMap() - we can use the flatMap to convert the above 2 levels Stream into one Stream level or a 2d array into a 1d array.
+```
+ private static final List<List<String>> arrayListOfNames = List.of(
+            List.of("Mariam", "Alex", "Ismail"),
+            List.of("John", "Alesha", "Andre"),
+            List.of("Susy", "Ali")
+    );
+
+    @BeforeEach
+    void setUp() {
+        System.out.println(arrayListOfNames);
+    }
+
+    @Test
+    public void withoutFlatMap() throws Exception {
+        // [Mariam, Alex, Ismail, John, Alesha, Andre, Susy, Ali]
+        List<String> names = new ArrayList<>();
+        for (List<String> strings : arrayListOfNames) {
+            names.addAll(strings);
+        }
+        System.out.println(names);
+    }
+
+    @Test
+    public void withFlatMap() throws Exception {
+        // [Mariam, Alex, Ismail, John, Alesha, Andre, Susy, Ali]
+        List<String> names = arrayListOfNames.stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+        System.out.println(names);
+    }
+
+    @Test
+    public void flatMapWithOptionals() {
+        List<Optional<String>> optionals = List.of(
+                Optional.of("Amigos"),
+                Optional.of("Code")
+        );
+
+        List<String> list = optionals.stream()
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
+
+        System.out.println(list);
+    }
+```
+This example uses .stream() to convert a List into a stream of objects, and each object contains a set of books, and we can use flatMap to produces a stream containing all the book in all the objects.
+
+In the end, we also filter out the book containing the word python and collect a Set to remove the duplicated book.
+```
+public class Developer {
+
+    private Integer id;
+    private String name;
+    private Set<String> book;
+
+    //getters, setters, toString
+
+    public void addBook(String book) {
+        if (this.book == null) {
+            this.book = new HashSet<>();
+        }
+        this.book.add(book);
+    }
+}
+
+Developer o1 = new Developer();
+        o1.setName("mkyong");
+        o1.addBook("Java 8 in Action");
+        o1.addBook("Spring Boot in Action");
+        o1.addBook("Effective Java (3nd Edition)");
+
+        Developer o2 = new Developer();
+        o2.setName("zilap");
+        o2.addBook("Learning Python, 5th Edition");
+        o2.addBook("Effective Java (3nd Edition)");
+
+        List<Developer> list = new ArrayList<>();
+        list.add(o1);
+        list.add(o2);
+
+       Set<String> collect = list.stream()
+                        .map(x -> x.getBook())                              //  Stream<Set<String>>
+                        .flatMap(x -> x.stream())                           //  Stream<String>
+                        .filter(x -> !x.toLowerCase().contains("python"))   //  filter python book
+                        .collect(Collectors.toSet());                       //  remove duplicated
+
+        collect.forEach(System.out::println);
+        
+Spring Boot in Action
+Effective Java (3nd Edition)
+Java 8 in Action
+```
+### Aggregate Functions
+count() - returns values quantity 
+```
+ @Test
+    public void count() throws Exception {
+        List<Car> cars = MockData.getCars();
+        long count = cars.stream()
+                .filter(car -> car.getMake().equalsIgnoreCase("Ford"))
+                .filter(car -> car.getYear() > 2010)
+                .count();
+        System.out.println(count);//10
+    }
+```
+min()
+```
+@Test
+    public void min() throws Exception {
+        List<Car> cars = MockData.getCars();
+        double min = cars.stream()
+                .mapToDouble(Car::getPrice)
+                .min()
+                .orElse(0);
+        System.out.println(min);
+    }
+```
+max()
+```
+@Test
+    public void max() throws Exception {
+        List<Car> cars = MockData.getCars();
+        double max = cars.stream()
+                .mapToDouble(Car::getPrice)
+                .max()
+                .orElse(0);
+        System.out.println(max);
+    }
+```
+average()
+```
+@Test
+    public void average() throws Exception {
+        List<Car> cars = MockData.getCars();
+        double average = cars.stream()
+                .mapToDouble(Car::getPrice)
+                .average()
+                .orElse(0);
+        System.out.println(average);
+    }
+```
+sum()
+```
+@Test
+    public void sum() throws Exception {
+        List<Car> cars = MockData.getCars();
+        double sum = cars.stream()
+                .mapToDouble(Car::getPrice)
+                .sum();
+        System.out.println(BigDecimal.valueOf(sum));
+    }
+```
+summaryStatistics() - method that can be used to get multiple statistical properties of a stream (minimum value, average value, etc.).
+```
+@Test
+    public void statistics() throws Exception {
+        List<Car> cars = MockData.getCars();
+        DoubleSummaryStatistics statistics = cars.stream()
+                .mapToDouble(Car::getPrice)
+                .summaryStatistics();
+        System.out.println(statistics.getCount());
+        System.out.println(statistics.getMin());
+        System.out.println(statistics.getMax());
+        System.out.println(statistics.getAverage());
+        System.out.println(BigDecimal.valueOf(statistics.getSum()));
+    }
+```
+Assume we have a list of people. Our goal is to get the minimum and maximum age of the people in the list using streams.
+
+The problem here is that the computation of the minimum and maximum values are terminal stream operations. So we need to come up with our own reduction implementation or create a new stream for every computation. A naive implementation might look like this:
+```
+List<Person> list = Arrays.asList(
+new Person("John Blue", 28),
+new Person("Anna Brown", 53),
+new Person("Paul Black", 47)
+);
+
+int min = list.stream()
+.mapToInt(Person::getAge)
+.min()
+.orElseThrow(NoSuchElementException::new);
+
+int max = list.stream()
+.mapToInt(Person::getAge)
+.max()
+.orElseThrow(NoSuchElementException::new);
+```
+Luckily Java provides a much simpler way to do this using the summaryStatistics() method:
+```
+IntSummaryStatistics statistics = list.stream()
+.mapToInt(Person::getAge)
+.summaryStatistics();
+
+int min = statistics.getMin();
+int max = statistics.getMax();
+```
+IntSummaryStatistics also provides methods to obtain the count and sum of the stream elements.
+
+#### groupingBy()
+1. Group by a List and display the total count of it.
+```
+public static void main(String[] args) {
+        //3 apple, 2 banana, others 1
+        List<String> items =
+                Arrays.asList("apple", "apple", "banana",
+                        "apple", "orange", "banana", "papaya");
+
+        Map<String, Long> result =
+                items.stream().collect(
+                        Collectors.groupingBy(
+                                Function.identity(), Collectors.counting()
+                        )
+                );
+
+        System.out.println(result);//papaya=1, orange=1, banana=2, apple=3
+    }
+```
+2. Add sorting.
+```
+public static void main(String[] args) {
+        //3 apple, 2 banana, others 1
+        List<String> items =
+                Arrays.asList("apple", "apple", "banana",
+                        "apple", "orange", "banana", "papaya");
+
+        Map<String, Long> result =
+                items.stream().collect(
+                        Collectors.groupingBy(
+                                Function.identity(), Collectors.counting()
+                        )
+                );
+
+        Map<String, Long> finalMap = new LinkedHashMap<>();
+
+        //Sort a map and add to finalMap
+        result.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue()
+                        .reversed()).forEachOrdered(e -> finalMap.put(e.getKey(), e.getValue()));
+
+        System.out.println(finalMap);//apple=3, banana=2, papaya=1, orange=1
+    }
+```
+3. Group by the name + Count or Sum the Qty.
+POJO
+```
+public class Item {
+
+    private String name;
+    private int qty;
+    private BigDecimal price;
+
+    //constructors, getter/setters 
+}
+```
+```
+public static void main(String[] args) {
+        //3 apple, 2 banana, others 1
+        List<Item> items = Arrays.asList(
+                new Item("apple", 10, new BigDecimal("9.99")),
+                new Item("banana", 20, new BigDecimal("19.99")),
+                new Item("orang", 10, new BigDecimal("29.99")),
+                new Item("watermelon", 10, new BigDecimal("29.99")),
+                new Item("papaya", 20, new BigDecimal("9.99")),
+                new Item("apple", 10, new BigDecimal("9.99")),
+                new Item("banana", 10, new BigDecimal("19.99")),
+                new Item("apple", 20, new BigDecimal("9.99"))
+        );
+
+        Map<String, Long> counting = items.stream().collect(
+                Collectors.groupingBy(Item::getName, Collectors.counting()));
+
+        System.out.println(counting);
+
+        Map<String, Integer> sum = items.stream().collect(
+                Collectors.groupingBy(Item::getName, Collectors.summingInt(Item::getQty)));
+
+        System.out.println(sum);
+
+    }
+}
+//Group by + Count
+{
+	papaya=1, banana=2, apple=3, orang=1, watermelon=1
+}
+
+//Group by + Sum qty
+{
+	papaya=20, banana=30, apple=40, orang=10, watermelon=10
+}
+```
+4. Group by Price – Collectors.groupingBy and Collectors.mapping() example.
+```
+public static void main(String[] args) {
+        //3 apple, 2 banana, others 1
+        List<Item> items = Arrays.asList(
+                new Item("apple", 10, new BigDecimal("9.99")),
+                new Item("banana", 20, new BigDecimal("19.99")),
+                new Item("orang", 10, new BigDecimal("29.99")),
+                new Item("watermelon", 10, new BigDecimal("29.99")),
+                new Item("papaya", 20, new BigDecimal("9.99")),
+                new Item("apple", 10, new BigDecimal("9.99")),
+                new Item("banana", 10, new BigDecimal("19.99")),
+                new Item("apple", 20, new BigDecimal("9.99"))
+                );
+
+		//group by price
+        Map<BigDecimal, List<Item>> groupByPriceMap = 
+			items.stream().collect(Collectors.groupingBy(Item::getPrice));
+
+        System.out.println(groupByPriceMap);
+
+		// group by price, uses 'mapping' to convert List<Item> to Set<String>
+        Map<BigDecimal, Set<String>> result =
+                items.stream().collect(
+                        Collectors.groupingBy(Item::getPrice,
+                                Collectors.mapping(Item::getName, Collectors.toSet())
+                        )
+                );
+        System.out.println(result);
+    }
+//group by price 
+    19.99=[
+			Item{name='banana', qty=20, price=19.99}, 
+			Item{name='banana', qty=10, price=19.99}
+		], 
+	29.99=[
+			Item{name='orang', qty=10, price=29.99}, 
+			Item{name='watermelon', qty=10, price=29.99}
+		], 
+	9.99=[
+			Item{name='apple', qty=10, price=9.99}, 
+			Item{name='papaya', qty=20, price=9.99}, 
+			Item{name='apple', qty=10, price=9.99}, 
+			Item{name='apple', qty=20, price=9.99}
+		]
+}
+
+//group by + mapping to Set
+{
+	19.99=[banana], 
+	29.99=[orang, watermelon], 
+	9.99=[papaya, apple]
+}
+```
