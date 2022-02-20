@@ -194,3 +194,161 @@ anyMatch()
         System.out.println(anyMatch);//true
     }
 ```
+### Transformations
+map() - lets you convert an object to something else.
+```
+@Test
+    void yourFirstTransformationWithMap() throws IOException {
+        List<Person> people = MockData.getPeople();
+
+        Function<Person, PersonDTO> personPersonDTOFunction = person ->
+                new PersonDTO(
+                        person.getId(),
+                        person.getFirstName(),
+                        person.getAge());
+
+        List<PersonDTO> dtos = people.stream()
+                .filter(person -> person.getAge() > 20)
+                .map(PersonDTO::map)//converts Person to PersonDTO
+                .collect(Collectors.toList());
+
+        dtos.forEach(System.out::println);
+    }
+```
+mapToInteger() - converts objects to int values
+mapToDouble() - converts objects to double values 
+```
+@Test
+    void mapToDoubleAndFindAverageCarPrice() throws IOException {
+            List<Car> cars = MockData.getCars();
+        double avg = cars.stream()
+        .mapToDouble(Car::getPrice)
+        .average()
+        .orElse(0);
+        System.out.println(avg);
+        }
+```
+#### **reduce()** - combine elements of a stream and produces a single value.
+
+The Key Concepts: Identity, Accumulator and Combiner
+- Identity – an element that is the initial value of the reduction operation and the default result if the stream is empty
+- Accumulator – a function that takes two parameters: a partial result of the reduction operation and the next element of the stream
+- Combiner – a function used to combine the partial result of the reduction operation when the reduction is parallelized or when there's a mismatch between the types of the accumulator arguments and the types of the accumulator implementation
+
+```
+//A simple sum operation using a for loop.
+int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  int sum = 0;
+  for (int i : numbers) {
+      sum += i;
+  }
+  System.out.println("sum : " + sum); // 55
+  
+//The equivalent in Stream.reduce()
+// 1st argument, init value = 0
+  int sum = Arrays.stream(numbers).reduce(0, (a, b) -> a + b);
+
+  System.out.println("sum : " + sum); // 55
+  
+//or method reference with Integer::sum
+int sum = Arrays.stream(numbers).reduce(0, Integer::sum); // 55
+```
+1. Method Signature
+```
+Stream.java
+T reduce(T identity, BinaryOperator<T> accumulator);
+
+IntStream.java
+int reduce(int identity, IntBinaryOperator op);
+
+LongStream.java
+long reduce(int identity, LongBinaryOperator op);
+```
+- identity = default or initial value.
+- BinaryOperator = functional interface, take two values and produces a new value.
+
+if the identity argument is missing, there is no default or initial value, and it returns an optional.
+```
+Stream.java
+
+Optional<T> reduce(BinaryOperator<T> accumulator);
+```
+2. Math operations
+```
+int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+int sum = Arrays.stream(numbers).reduce(0, (a, b) -> a + b);    // 55
+int sum2 = Arrays.stream(numbers).reduce(0, Integer::sum);      // 55
+
+int sum3 = Arrays.stream(numbers).reduce(0, (a, b) -> a - b);   // -55
+int sum4 = Arrays.stream(numbers).reduce(0, (a, b) -> a * b);   // 0, initial is 0, 0 * whatever = 0
+int sum5 = Arrays.stream(numbers).reduce(0, (a, b) -> a / b);   // 0
+```
+3. Max and Min.
+```
+int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+int max = Arrays.stream(numbers).reduce(0, (a, b) -> a > b ? a : b);  // 10
+int max1 = Arrays.stream(numbers).reduce(0, Integer::max);            // 10
+
+int min = Arrays.stream(numbers).reduce(0, (a, b) -> a < b ? a : b);  // 0
+int min1 = Arrays.stream(numbers).reduce(0, Integer::min); 
+```
+4. Join String.
+```
+String[] strings = {"a", "b", "c", "d", "e"};
+
+  // |a|b|c|d|e , the initial | join is not what we want
+  String reduce = Arrays.stream(strings).reduce("", (a, b) -> a + "|" + b);
+
+  // a|b|c|d|e, filter the initial "" empty string
+  String reduce2 = Arrays.stream(strings).reduce("", (a, b) -> {
+      if (!"".equals(a)) {
+          return a + "|" + b;
+      } else {
+          return b;
+      }
+  });
+
+  // a|b|c|d|e , better uses the Java 8 String.join :)
+  String join = String.join("|", strings);
+```
+5. Map & Reduce
+
+   A simple map and reduce example to sum BigDecimal from a list of invoices.
+```
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.List;
+
+public class JavaReduce {
+
+    public static void main(String[] args) {
+
+        List<Invoice> invoices = Arrays.asList(
+                new Invoice("A01", BigDecimal.valueOf(9.99), BigDecimal.valueOf(1)),
+                new Invoice("A02", BigDecimal.valueOf(19.99), BigDecimal.valueOf(1.5)),
+                new Invoice("A03", BigDecimal.valueOf(4.99), BigDecimal.valueOf(2))
+        );
+
+        BigDecimal sum = invoices.stream()
+                .map(x -> x.getQty().multiply(x.getPrice()))    // map
+                .reduce(BigDecimal.ZERO, BigDecimal::add);      // reduce
+
+        System.out.println(sum);    // 49.955
+        System.out.println(sum.setScale(2, RoundingMode.HALF_UP));  // 49.96
+
+    }
+
+}
+
+class Invoice {
+
+    String invoiceNo;
+    BigDecimal price;
+    BigDecimal qty;
+
+    // getters, stters n constructor
+}
+```
