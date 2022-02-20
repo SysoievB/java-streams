@@ -697,3 +697,386 @@ public static void main(String[] args) {
 	9.99=[papaya, apple]
 }
 ```
+### Sorting Elements and Objects
+```
+    @Test
+    public void sortingStreamOfElements() throws IOException {
+        List<Person> people = MockData.getPeople();
+        List<String> sorted = people.stream()
+                .map(Person::getFirstName)
+                .sorted()
+                .collect(Collectors.toList());
+        sorted.forEach(System.out::println);
+    }
+
+    @Test
+    public void sortingStreamOfElementsReverse() throws IOException {
+        List<Person> people = MockData.getPeople();
+
+        List<String> sorted = people.stream()
+                .map(Person::getFirstName)
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList());
+        sorted.forEach(System.out::println);
+    }
+
+    @Test
+    public void sortingStreamOfObjets() throws IOException {
+        List<Person> people = MockData.getPeople();
+
+        Comparator<Person> comparing = Comparator
+                .comparing(Person::getEmail)
+                .reversed()
+                .thenComparing(Person::getFirstName);
+
+        List<Person> sort = people.stream()
+                .sorted(comparing)
+                .collect(Collectors.toList());
+        sort.forEach(System.out::println);
+    }
+
+    @Test
+    public void topTenMostExpensiveBlueCars() throws IOException {
+        List<Car> cars = MockData.getCars();
+        List<Car> topTen = cars.stream()
+                .filter(car -> car.getColor().equalsIgnoreCase("blue"))
+                .sorted(Comparator.comparing(Car::getPrice).reversed())
+                .limit(10)
+                .collect(Collectors.toList());
+        topTen.forEach(System.out::println);
+    }
+
+}
+```
+### Joining Strings
+without stream
+```
+ @Test
+    public void joiningStrings() throws Exception {
+        List<String> names = List.of("anna", "john", "marcos", "helena", "yasmin");
+        // "Anna, John, Marcos, Helena, Yasmin"
+        StringBuilder join = new StringBuilder();
+
+        for (String name : names) {
+            join.append(name.substring(0, 1).toUpperCase())
+                    .append(name.substring(1))
+                    .append(", ");
+        }
+
+        System.out.println(join);//Anna, John, Marcos, Helena, Yasmin, 
+        System.out.println(join.substring(0, join.length() - 2));//Anna, John, Marcos, Helena, Yasmin
+    }
+```
+with stream
+```
+ @Test
+    public void joiningStringsWithStream() throws Exception {
+        List<String> names = List.of("anna", "john", "marcos", "helena", "yasmin");
+        // "Anna, John, Marcos, Helena, Yasmin"
+        String join = names.stream()
+                .map(name -> name.substring(0, 1).toUpperCase() + name.substring(1))
+                .collect(Collectors.joining(", "));
+        System.out.println(join);//Anna, John, Marcos, Helena, Yasmin
+    }
+```
+### Collectors
+Stream.**collect()** is one of the Java 8's Stream API‘s terminal methods. It allows us to perform mutable fold operations (repackaging elements to some data structures and applying some additional logic, concatenating them, etc.) on data elements held in a Stream instance.
+
+The strategy for this operation is provided via the Collector interface implementation.
+
+1. **Collectors.toList()**
+```
+List<String> result = givenList.stream()
+  .collect(Collectors.toList());
+```
+
+2. **Collectors.toUnmodifiableList()**
+```
+List<String> result = givenList.stream()
+  .collect(Collectors.toUnmodifiableList());
+```
+Now if we try to modify the result List, we'll get an UnsupportedOperationException
+
+3. **Collectors.toSet()**
+```
+Set<String> result = givenList.stream()
+  .collect(Collectors.toSet());
+```
+
+4. **Collectors.toUnmodifiableSet()**
+```
+Set<String> result = givenList.stream()
+  .collect(Collectors.toUnmodifiableSet());
+```
+
+5. **Collectors.toCollection()**
+```
+List<String> result = givenList.stream()
+  .collect(Collectors.toCollection(LinkedList::new));
+```
+
+6. **Collectors.toMap()**
+   The toMap collector can be used to collect Stream elements into a Map instance. To do this, we need to provide two functions:
+- keyMapper
+- valueMapper
+
+   We'll use keyMapper to extract a Map key from a Stream element, and valueMapper to extract a value associated with a given key.
+
+Let's collect those elements into a Map that stores strings as keys and their lengths as values:
+```
+Map<String, Integer> result = givenList.stream()
+  .collect(Collectors.toMap(Function.identity(), String::length));
+```
+
+7. **Collectors.collectingAndThen()**
+
+   CollectingAndThen is a special collector that allows us to perform another action on a result straight after collecting ends.
+   Let's collect Stream elements to a List instance, and then convert the result into an ImmutableList instance:
+```
+List<String> result = givenList.stream()
+  .collect(Collectors.collectingAndThen(toList(), ImmutableList::copyOf));
+```
+
+8. **Collectors.joining()**
+
+Joining collector can be used for joining Stream<String> elements.
+
+We can join them together by doing:
+```
+List<String> listWithDuplicates = Arrays.asList("a", "bb", "c", "d", "bb");
+
+String result = givenList.stream()
+  .collect(Collectors.joining());
+
+//abbcccdd
+```
+We can also specify custom separators, prefixes, postfixes:
+```
+String result = givenList.stream()
+  .collect(joining(" "));//a bb ccc dd
+```
+We can also write:
+```
+String result = givenList.stream()
+  .collect(joining(" ", "PRE-", "-POST"));//PRE-a bb ccc dd-POST
+```
+9. **Collectors.counting()**
+
+    Counting is a simple collector that allows for the counting of all Stream elements.
+
+Now we can write:
+```
+Long result = givenList.stream()
+  .collect(counting());
+```
+10. **Collectors.summarizingDouble/Long/Int()**
+
+SummarizingDouble/Long/Int is a collector that returns a special class containing statistical information about numerical data in a Stream of extracted elements.
+
+We can obtain information about string lengths by doing:
+```
+DoubleSummaryStatistics result = givenList.stream()
+  .collect(summarizingDouble(String::length));
+  
+assertThat(result.getAverage()).isEqualTo(2);//true
+assertThat(result.getCount()).isEqualTo(4);//true
+assertThat(result.getMax()).isEqualTo(3);//true
+assertThat(result.getMin()).isEqualTo(1);//true
+assertThat(result.getSum()).isEqualTo(8);//true
+```
+
+11. **Collectors.averagingDouble/Long/Int()**
+
+AveragingDouble/Long/Int is a collector that simply returns an average of extracted elements.
+
+We can get the average string length by doing:
+
+```
+Double result = givenList.stream()
+.collect(averagingDouble(String::length));
+```
+
+12. **Collectors.summingDouble/Long/Int()**
+
+SummingDouble/Long/Int is a collector that simply returns a sum of extracted elements
+
+We can get the sum of all string lengths by doing:
+```
+Double result = givenList.stream()
+  .collect(summingDouble(String::length));
+```
+
+13. **Collectors.maxBy()/minBy()**
+
+MaxBy/MinBy collectors return the biggest/smallest element of a Stream according to a provided Comparator instance.
+
+We can pick the biggest element by doing:
+```
+Optional<String> result = givenList.stream()
+.collect(maxBy(Comparator.naturalOrder()));
+```
+
+We can see that the returned value is wrapped in an Optional instance. This forces users to rethink the empty collection corner case.
+
+14. **Collectors.groupingBy()**
+
+GroupingBy collector is used for grouping objects by some property, and then storing the results in a Map instance.
+
+We can group them by string length, and store the grouping results in Set instances:
+```
+Map<Integer, Set<String>> result = givenList.stream()
+.collect(groupingBy(String::length, toSet()));
+```
+
+15. **Collectors.partitioningBy()**
+
+PartitioningBy is a specialized case of groupingBy that accepts a Predicate instance, and then collects Stream elements into a Map instance that stores Boolean values as keys and collections as values. Under the “true” key, we can find a collection of elements matching the given Predicate, and under the “false” key, we can find a collection of elements not matching the given Predicate.
+
+We can write:
+
+```
+Map<Boolean, List<String>> result = givenList.stream()
+  .collect(partitioningBy(s -> s.length() > 2));//{false=["a", "bb", "dd"], true=["ccc"]}
+```
+
+16. **Collectors.teeing()**
+
+```
+List<Integer> numbers = Arrays.asList(42, 4, 2, 24);
+Optional<Integer> min = numbers.stream().collect(minBy(Integer::compareTo));
+Optional<Integer> max = numbers.stream().collect(maxBy(Integer::compareTo));
+// do something useful with min and max
+```
+
+Here we're using two different collectors, and then combining the results of those two to create something meaningful. Before Java 12, in order to cover such use cases, we had to operate on the given Stream twice, store the intermediate results into temporary variables, and then combine those results afterwards.
+
+Fortunately, Java 12 offers a built-in collector that takes care of these steps on our behalf; all we have to do is provide the two collectors and the combiner function.
+
+Since this new collector tees the given stream towards two different directions, it's called teeing:
+
+```
+numbers.stream().collect(teeing(
+minBy(Integer::compareTo), // The first collector
+maxBy(Integer::compareTo), // The second collector
+(min, max) -> // Receives the result from those collectors and combines them
+));
+```
+
+17. **Custom collectors**
+
+If we want to write our own Collector implementation, we need to implement the Collector interface, and specify its three generic parameters:
+
+```
+public interface Collector<T, A, R> {...}
+```
+
+- T – the type of objects that will be available for collection
+- A – the type of a mutable accumulator object
+- R – the type of a final result
+
+Let's write an example Collector for collecting elements into an ImmutableSet instance. We start by specifying the right types:
+
+```
+private class ImmutableSetCollector<T>
+implements Collector<T, ImmutableSet.Builder<T>, ImmutableSet<T>> {...}
+```
+
+Since we need a mutable collection for internal collection operation handling, we can't use ImmutableSet. Instead, we need to use some other mutable collection, or any other class that could temporarily accumulate objects for us. In this case, we will go with an ImmutableSet.Builder and now we need to implement 5 methods:
+
+```
+Supplier<ImmutableSet.Builder<T>> supplier()
+BiConsumer<ImmutableSet.Builder<T>, T> accumulator()
+BinaryOperator<ImmutableSet.Builder<T>> combiner()
+Function<ImmutableSet.Builder<T>, ImmutableSet<T>> finisher()
+Set<Characteristics> characteristics()
+```
+
+The supplier() method returns a Supplier instance that generates an empty accumulator instance. So in this case, we can simply write:
+
+```
+@Override
+public Supplier<ImmutableSet.Builder<T>> supplier() {
+return ImmutableSet::builder;
+}
+```
+
+The accumulator() method returns a function that is used for adding a new element to an existing accumulator object. So let's just use the Builder‘s add method:
+
+```
+@Override
+public BiConsumer<ImmutableSet.Builder<T>, T> accumulator() {
+return ImmutableSet.Builder::add;
+}
+```
+
+The combiner() method returns a function that is used for merging two accumulators together:
+
+```
+@Override
+public BinaryOperator<ImmutableSet.Builder<T>> combiner() {
+return (left, right) -> left.addAll(right.build());
+}
+```
+
+The finisher() method returns a function that is used for converting an accumulator to final result type. So in this case, we'll just use Builder‘s build method:
+
+```
+@Override
+public Function<ImmutableSet.Builder<T>, ImmutableSet<T>> finisher() {
+return ImmutableSet.Builder::build;
+}
+```
+
+The characteristics() method is used to provide Stream with some additional information that will be used for internal optimizations. In this case, we don't pay attention to the elements order in a Set because we'll use Characteristics.UNORDERED. To obtain more information regarding this subject, check Characteristics‘ JavaDoc:
+
+```
+@Override 
+public Set<Characteristics> characteristics() {
+return Sets.immutableEnumSet(Characteristics.UNORDERED);
+}
+```
+
+Here is the complete implementation along with the usage:
+
+```
+public class ImmutableSetCollector<T> 
+implements Collector<T, ImmutableSet.Builder<T>, ImmutableSet<T>> {
+
+@Override
+public Supplier<ImmutableSet.Builder<T>> supplier() {
+return ImmutableSet::builder;
+}
+
+@Override
+public BiConsumer<ImmutableSet.Builder<T>, T> accumulator() {
+return ImmutableSet.Builder::add;
+}
+
+@Override
+public BinaryOperator<ImmutableSet.Builder<T>> combiner() {
+return (left, right) -> left.addAll(right.build());
+}
+
+@Override
+public Function<ImmutableSet.Builder<T>, ImmutableSet<T>> finisher() {
+return ImmutableSet.Builder::build;
+}
+
+@Override
+public Set<Characteristics> characteristics() {
+return Sets.immutableEnumSet(Characteristics.UNORDERED);
+}
+
+public static <T> ImmutableSetCollector<T> toImmutableSet() {
+return new ImmutableSetCollector<>();
+}
+```
+
+Finally, here in action:
+
+```
+List<String> givenList = Arrays.asList("a", "bb", "ccc", "dddd");
+
+ImmutableSet<String> result = givenList.stream()
+.collect(toImmutableSet());
+```
