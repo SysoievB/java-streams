@@ -1080,3 +1080,9 @@ List<String> givenList = Arrays.asList("a", "bb", "ccc", "dddd");
 ImmutableSet<String> result = givenList.stream()
 .collect(toImmutableSet());
 ```
+	
+map() -> Function
+
+forEach() -> Consumer
+	
+filter() -> Predicate
