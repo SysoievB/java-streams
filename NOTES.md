@@ -1103,3 +1103,4 @@ reduce() -> Optional
         System.out.println(stream.distinct().count());
 ```
 	
+boxed() - перобразует из IntSteam в Stream
