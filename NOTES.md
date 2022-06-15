@@ -1083,7 +1083,7 @@ ImmutableSet<String> result = givenList.stream()
 	
 map() -> Function
 
-forEach() -> Consumer
+forEach(), peek() -> Consumer
 	
 filter() -> Predicate
 
