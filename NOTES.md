@@ -1096,3 +1096,10 @@ reduce() -> Optional
         Stream<Integer> stream2 = Stream.of(33, 44, 55, 66, 77);
         Stream.concat(stream1, stream2).forEach(System.out::println);
 ```
+	
+#### count()
+```java
+	Stream<Integer> stream = Stream.of(33, 44, 55, 66, 66, 77, 77);
+        System.out.println(stream.distinct().count());
+```
+	
