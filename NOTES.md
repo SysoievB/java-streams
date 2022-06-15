@@ -1086,3 +1086,6 @@ map() -> Function
 forEach() -> Consumer
 	
 filter() -> Predicate
+
+reduce() -> Optional
+	
