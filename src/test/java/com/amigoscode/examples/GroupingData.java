@@ -22,7 +22,6 @@ public class GroupingData {
             cars.forEach(System.out::println);
             System.out.println("---------------------");
         });
-
     }
 
     @Test
@@ -46,7 +45,5 @@ public class GroupingData {
                 );
 
         System.out.println(map);
-
     }
-
 }

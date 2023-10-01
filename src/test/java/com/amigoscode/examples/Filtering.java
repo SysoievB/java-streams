@@ -86,7 +86,6 @@ public class Filtering {
         boolean anyMatch = Arrays.stream(evenAndOneOdd).anyMatch(n -> !(n % 2 == 0));
         System.out.println(anyMatch);
     }
-
 }
 
 

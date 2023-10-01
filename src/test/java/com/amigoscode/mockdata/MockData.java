@@ -32,5 +32,4 @@ public class MockData {
         }.getType();
         return new Gson().fromJson(json, listType);
     }
-
 }
