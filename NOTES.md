@@ -1080,3 +1080,27 @@ List<String> givenList = Arrays.asList("a", "bb", "ccc", "dddd");
 ImmutableSet<String> result = givenList.stream()
 .collect(toImmutableSet());
 ```
+	
+map() -> Function
+
+forEach(), peek() -> Consumer
+	
+filter() -> Predicate
+
+reduce() -> Optional
+
+	
+#### concat()
+```java
+	Stream<Integer> stream1 = Stream.of(3, 4, 5, 6, 7);
+        Stream<Integer> stream2 = Stream.of(33, 44, 55, 66, 77);
+        Stream.concat(stream1, stream2).forEach(System.out::println);
+```
+	
+#### count()
+```java
+	Stream<Integer> stream = Stream.of(33, 44, 55, 66, 66, 77, 77);
+        System.out.println(stream.distinct().count());
+```
+	
+boxed() - перобразует из IntSteam в Stream
