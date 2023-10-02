@@ -5,6 +5,8 @@ import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -149,5 +151,47 @@ public class CollectorMethods {
                         0, Integer::sum
                 ));
         System.out.println(sum);
+    }
+
+    @Test
+    void maxBy() throws IOException {
+        val oldestCar = getCars()
+                .stream()
+                .limit(50)
+                .collect(Collectors.maxBy(Comparator.comparingInt(Car::getId)));
+        System.out.println(oldestCar);
+    }
+
+    @Test
+    void minBy() throws IOException {
+        val cars = getCars();
+        Collections.reverse(cars);
+        val oldestCar = cars
+                .stream()
+                .limit(50)
+                .collect(Collectors.minBy(Comparator.comparingInt(Car::getId)));
+        System.out.println(oldestCar);
+    }
+
+    @Test
+    void partitioningByGreen() throws IOException {
+        val isGreen = getCars()
+                .stream()
+                .limit(50)
+                .map(Car::getColor)
+                .collect(Collectors.partitioningBy(
+                        color -> color.equals("Green")
+                ));
+        System.out.println(isGreen);
+
+        val oldestCar = getCars()
+                .stream()
+                .limit(50)
+                .map(Car::getColor)
+                .collect(Collectors.partitioningBy(
+                        color -> color.equals("Green"),
+                        Collectors.counting()
+                ));
+        System.out.println(oldestCar);
     }
 }
