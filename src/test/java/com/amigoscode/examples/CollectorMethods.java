@@ -1,7 +1,6 @@
 package com.amigoscode.examples;
 
 import com.amigoscode.beans.Car;
-import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -9,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -21,7 +21,7 @@ public class CollectorMethods {
     @Test
     void averaging() {
         List<String> numbers = List.of("1", "2", "3", "4");
-        val averaging = numbers.stream().collect(Collectors.averagingLong(Long::parseLong));
+        Double averaging = numbers.stream().collect(Collectors.averagingLong(Long::parseLong));
         System.out.println(averaging);
     }
 
@@ -32,7 +32,7 @@ public class CollectorMethods {
                 Function.identity()
         ));
 
-        val countingCars = cars.entrySet().stream().collect(Collectors.counting());
+        Long countingCars = cars.entrySet().stream().collect(Collectors.counting());
         System.out.println(countingCars);
     }
 
@@ -43,7 +43,7 @@ public class CollectorMethods {
                 Function.identity()
         ));
 
-        val countingCars = getCars()
+        Double countingCars = cars.values()
                 .stream()
                 .skip(100)
                 .limit(10)
@@ -56,7 +56,7 @@ public class CollectorMethods {
 
     @Test
     void filtering() throws IOException {
-        val onlyIds = getCars()
+        Set<Integer> onlyIds = getCars()
                 .stream()
                 .limit(10)
                 .map(Car::getId)
@@ -68,7 +68,7 @@ public class CollectorMethods {
 
     @Test
     void mapping() throws IOException {
-        val onlyIds = getCars()
+        Set<Integer> onlyIds = getCars()
                 .stream()
                 .limit(10)
                 .collect(Collectors
@@ -79,7 +79,7 @@ public class CollectorMethods {
 
     @Test
     void flatMapping() throws IOException {
-        val onlyIds = getCars()
+        Set<Integer> onlyIds = getCars()
                 .stream()
                 .limit(10)
                 .collect(Collectors
@@ -91,21 +91,21 @@ public class CollectorMethods {
 
     @Test
     void joining() throws IOException {
-        val onlyIds = getCars()
+        String onlyIds = getCars()
                 .stream()
                 .limit(10)
                 .map(Car::getColor)
                 .collect(Collectors.joining("_"));
         System.out.println(onlyIds);
 
-        val onlyColors = getCars()
+        String onlyColors = getCars()
                 .stream()
                 .limit(10)
                 .map(Car::getColor)
                 .collect(Collectors.joining());
         System.out.println(onlyColors);
 
-        val onlyColorsWithPrefixAndSuffix = getCars()
+        String onlyColorsWithPrefixAndSuffix = getCars()
                 .stream()
                 .limit(10)
                 .map(Car::getColor)
@@ -135,7 +135,7 @@ public class CollectorMethods {
 
     @Test
     void reducing() throws IOException {
-        val oldestCar = getCars()
+        Optional<Car> oldestCar = getCars()
                 .stream()
                 .limit(5)
                 .collect(Collectors
@@ -143,7 +143,7 @@ public class CollectorMethods {
                 );
         System.out.println(oldestCar.get());
 
-        val sum = getCars()
+        Integer sum = getCars()
                 .stream()
                 .limit(10)
                 .map(car -> car.getYear() - 2000)
@@ -155,7 +155,7 @@ public class CollectorMethods {
 
     @Test
     void maxBy() throws IOException {
-        val oldestCar = getCars()
+        Optional<Car> oldestCar = getCars()
                 .stream()
                 .limit(50)
                 .collect(Collectors.maxBy(Comparator.comparingInt(Car::getId)));
@@ -164,18 +164,18 @@ public class CollectorMethods {
 
     @Test
     void minBy() throws IOException {
-        val cars = getCars();
+        List<Car> cars = getCars();
         Collections.reverse(cars);
-        val oldestCar = cars
+        Optional<Car> oldestCar = cars
                 .stream()
                 .limit(50)
                 .collect(Collectors.minBy(Comparator.comparingInt(Car::getId)));
-        System.out.println(oldestCar);
+        System.out.println(oldestCar.get());
     }
 
     @Test
     void partitioningByGreen() throws IOException {
-        val isGreen = getCars()
+        Map<Boolean, List<String>> isGreen = getCars()
                 .stream()
                 .limit(50)
                 .map(Car::getColor)
@@ -184,7 +184,7 @@ public class CollectorMethods {
                 ));
         System.out.println(isGreen);
 
-        val oldestCar = getCars()
+        Map<Boolean, Long> oldestCar = getCars()
                 .stream()
                 .limit(50)
                 .map(Car::getColor)
