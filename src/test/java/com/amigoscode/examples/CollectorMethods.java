@@ -6,10 +6,12 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -193,5 +195,28 @@ public class CollectorMethods {
                         Collectors.counting()
                 ));
         System.out.println(oldestCar);
+    }
+
+    @Test
+    void toMap() throws IOException {
+        List<Car> cars = getCars();
+
+        Map<Integer, Double> yearAndPrice = cars.stream()
+                .collect(Collectors.toMap(
+                        Car::getYear,
+                        Car::getPrice,
+                        Double::sum,
+                        TreeMap::new
+                ));
+        System.out.println(yearAndPrice);
+    }
+
+    @Test
+    void toLinkedList() throws IOException {
+        List<String> carNames = getCars().stream()
+                .map(Car::getModel)
+                .collect(Collectors.toCollection(LinkedList::new));
+
+        System.out.println(carNames);
     }
 }
