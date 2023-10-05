@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 import static com.amigoscode.mockdata.MockData.getCars;
 
-public class CollectorMethods {
+class CollectorMethods {
 
     @Test
     void averaging() {
