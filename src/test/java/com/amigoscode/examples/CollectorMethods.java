@@ -1,6 +1,7 @@
 package com.amigoscode.examples;
 
 import com.amigoscode.beans.Car;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -17,6 +18,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.amigoscode.mockdata.MockData.getCars;
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CollectorMethods {
 
@@ -218,5 +221,47 @@ class CollectorMethods {
                 .collect(Collectors.toCollection(LinkedList::new));
 
         System.out.println(carNames);
+    }
+
+    @Test
+    void partitioningBy() throws IOException {
+        Map<Boolean, List<String>> blackAndWhiteOnly = getCars().stream()
+                .map(Car::getColor)
+                .filter(color -> color.equals("Pink") || color.equals("Blue"))
+                .collect(Collectors.partitioningBy(
+                        color -> color.equals("Pink"),
+                        toList()
+                ));
+        System.out.println(blackAndWhiteOnly);
+    }
+
+    @Test
+    void teeing() throws IOException {
+        List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+
+        // Using teeing to get both the sum and the product of the list
+        List<Integer> result = numbers.stream()
+                .collect(Collectors.teeing(
+                        Collectors.reducing(0, Integer::sum),  // Sum of the list
+                        Collectors.reducing(1, (a, b) -> a * b),  // Product of the list
+                        (sum, product) -> List.of(sum, product)  // Combining sum and product into a list
+                ));
+
+        System.out.println("Result: " + result);  // Output will be: Result: [15, 120]
+    }
+
+    @Test
+    void summarizing() throws IOException {
+        val statistics = getCars().stream()
+                .collect(Collectors.summarizingDouble(Car::getPrice));
+
+        assertThat(statistics)
+                .satisfies(result -> {
+                    assertThat(result.getAverage()).isEqualTo(52693.19979);
+                    assertThat(result.getCount()).isEqualTo(1000);
+                    assertThat(result.getMax()).isEqualTo(99932.82);
+                    assertThat(result.getMin()).isEqualTo(5005.16);
+                    assertThat(result.getSum()).isEqualTo(5.269319979E7);
+                });
     }
 }
