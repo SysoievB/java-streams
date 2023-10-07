@@ -249,7 +249,6 @@ class CollectorMethods {
 
         System.out.println("Result: " + result);  // Output will be: Result: [15, 120]
     }
-
     @Test
     void summarizing() throws IOException {
         val statistics = getCars().stream()
@@ -263,5 +262,14 @@ class CollectorMethods {
                     assertThat(result.getMin()).isEqualTo(5005.16);
                     assertThat(result.getSum()).isEqualTo(5.269319979E7);
                 });
+    }
+
+    @Test
+    void reduction() throws IOException {
+        val reducing = getCars().stream()
+                .map(Car::getPrice)
+                .collect(Collectors.reducing(Double::sum))
+                .orElse(0.0);
+        System.out.println(reducing);
     }
 }
