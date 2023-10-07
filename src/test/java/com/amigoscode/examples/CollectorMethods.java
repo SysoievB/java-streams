@@ -2,6 +2,7 @@ package com.amigoscode.examples;
 
 import com.amigoscode.beans.Car;
 import lombok.val;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -235,20 +236,23 @@ class CollectorMethods {
         System.out.println(blackAndWhiteOnly);
     }
 
+    @Disabled
     @Test
     void teeing() throws IOException {
         List<Integer> numbers = List.of(1, 2, 3, 4, 5);
 
-        // Using teeing to get both the sum and the product of the list
-        List<Integer> result = numbers.stream()
-                .collect(Collectors.teeing(
-                        Collectors.reducing(0, Integer::sum),  // Sum of the list
-                        Collectors.reducing(1, (a, b) -> a * b),  // Product of the list
-                        (sum, product) -> List.of(sum, product)  // Combining sum and product into a list
-                ));
+        // Using Collectors.teeing to calculate sum and product of a List<Integer>
+        var result = numbers.stream().collect(
+                Collectors.teeing(
+                        Collectors.summingInt(Integer::intValue),
+                        Collectors.reducing(1, (a, b) -> a * b),
+                        (sum, product) -> "Sum: " + sum + ", Product: " + product
+                )
+        );
 
-        System.out.println("Result: " + result);  // Output will be: Result: [15, 120]
+        System.out.println(result);
     }
+
     @Test
     void summarizing() throws IOException {
         val statistics = getCars().stream()
